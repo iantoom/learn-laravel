@@ -4,17 +4,16 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\User;
+use Intervention\Image\Facades\Image;
 
 class ProfilesController extends Controller
 {
-    public function index($user) {
+    public function index(User $user) {
 
         // let laravel take care of error response
-        $user = User::findOrFail($user);
+        // $user = User::findOrFail($user);
 
-        return view('profiles.index',[
-            'user' => $user
-        ]);
+        return view('profiles.index', compact('user'));
     }
 
     // bind argument to \App\User type
@@ -36,7 +35,19 @@ class ProfilesController extends Controller
             'image' => ''
         ]);
 
-        auth()->user->profile->update($data);
+        if(request('image')) {
+            $imagePath = request('image')->store('profile', 'public');
+
+            $image = Image::make(public_path("storage/{$imagePath}"))->fit(1200, 1200);
+            $image->save();
+
+            $imageArray = ['image' => $imagePath];
+        }
+
+        auth()->user()->profile->update(array_merge(
+            $data,
+            $imageArray ?? []
+        ));
 
         return redirect("/profile/{$user->id}");
     }

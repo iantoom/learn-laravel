@@ -6,6 +6,7 @@ use App\User;
 use App\Profile;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
+// use php artisan make:policy to create policy class
 class ProfilePolicy
 {
     use HandlesAuthorization;
